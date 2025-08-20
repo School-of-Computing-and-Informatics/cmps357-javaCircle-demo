@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+      {
+        "type": "java",
+        "name": "Run App (module)",
+        "request": "launch",
+        "mainClass": "java14.demo/com.example.App",
+        "vmArgs": "--add-modules java.desktop"
+      }
+    ]
+  }

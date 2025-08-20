@@ -1,0 +1,32 @@
+package com.example;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+/**
+ * Main application class that creates and displays a graphical window
+ * containing interactive circles arranged in a circular pattern.
+ * 
+ * @author Your Name
+ * @version 1.0
+ */
+public class App {
+    
+    /**
+     * Main entry point for the application.
+     * Creates a JFrame window and displays the CirclePanel with interactive circles.
+     * Uses SwingUtilities.invokeLater to ensure thread safety for Swing components.
+     * 
+     * @param args command line arguments (not used)
+     */
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Node Circle 800x800");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(new CirclePanel());
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
+}
