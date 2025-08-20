@@ -1,3 +1,3 @@
-module java14.demo {
+module javaCircle.demo {
     requires java.desktop;
     }
