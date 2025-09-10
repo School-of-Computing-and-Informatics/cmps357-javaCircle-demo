@@ -107,7 +107,8 @@ public class CirclePanel extends JPanel {
      * @return the node at the specified point, or null if no node is found
      */
     private Node findNodeAt(Point point) {
-        for (Node node : nodes) {
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+            Node node = nodes.get(i);
             Point nodePos = node.getPosition();
             int radius = node.getRadius();
             double distance = Math.sqrt(
