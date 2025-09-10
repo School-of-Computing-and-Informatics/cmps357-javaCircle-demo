@@ -1,4 +1,4 @@
-package com.example;
+package edu.louisiana.cmps357.C00546097;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -7,7 +7,7 @@ import java.awt.Point;
  * Represents a graphical node that can be displayed as a circle on the screen.
  * Each node has a position, color, and radius, and can be moved interactively.
  * 
- * @author Your Name
+ * @author Liana Webre
  * @version 1.0
  */
 public class Node {
@@ -48,7 +48,15 @@ public class Node {
      * @return the radius in pixels
      */
     public int getRadius() { return radius; }
-    
+
+    /**
+     * Sets the radius of this node.
+     *
+     * @param radius to be set
+     */
+    public void setRadius(int radius) { this.radius = radius; }  // <--- here
+
+
     /**
      * Sets the position of this node to the specified point.
      * This method is used when the node is being dragged by the user.

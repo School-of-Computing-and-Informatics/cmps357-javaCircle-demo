@@ -1,4 +1,4 @@
-package com.example;
+package edu.louisiana.cmps357.C00546097;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
  * Main application class that creates and displays a graphical window
  * containing interactive circles arranged in a circular pattern.
  * 
- * @author Your Name
+ * @author Liana Webre
  * @version 1.0
  */
 public class App {

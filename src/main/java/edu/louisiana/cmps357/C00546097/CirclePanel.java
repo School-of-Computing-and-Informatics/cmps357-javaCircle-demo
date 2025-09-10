@@ -1,4 +1,4 @@
-package com.example;
+package edu.louisiana.cmps357.C00546097;
 
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -7,9 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,7 +16,7 @@ import java.util.Random;
  * The circles are initially arranged in a circular pattern and can be
  * dragged by the user using mouse interactions.
  * 
- * @author Your Name
+ * @author Liana Webre
  * @version 1.0
  */
 public class CirclePanel extends JPanel {
@@ -28,6 +26,10 @@ public class CirclePanel extends JPanel {
     private ArrayList<Node> nodes;
     private Node selectedNode;
     private Point lastMousePoint;
+
+    // Track the base panel size for scaling
+    private int lastWidth;
+    private int lastHeight;
 
     /**
      * Constructs a new CirclePanel with the specified size and initializes
@@ -40,6 +42,19 @@ public class CirclePanel extends JPanel {
         nodes = new ArrayList<>();
         createNodes();
         setupMouseListeners();
+
+
+        lastWidth = SIZE;
+        lastHeight = SIZE;
+
+        // resize handler
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                scaleNodes();
+                repaint();
+            }
+        });
     }
     
     /**
@@ -129,6 +144,31 @@ public class CirclePanel extends JPanel {
             
             nodes.add(new Node(new Point(x, y), color, radius));
         }
+    }
+
+    /**
+     * Scale nodes continuously as the panel resizes.
+     */
+    private void scaleNodes() {
+        int newWidth = getWidth();
+        int newHeight = getHeight();
+
+        double scaleX = (double) newWidth / lastWidth;
+        double scaleY = (double) newHeight / lastHeight;
+
+        for (Node node : nodes) {
+            Point pos = node.getPosition();
+            int newX = (int) Math.round(pos.x * scaleX);
+            int newY = (int) Math.round(pos.y * scaleY);
+            node.setPosition(new Point(newX, newY));
+
+            // Optionally scale node radius (comment out if not desired)
+            int newRadius = (int) Math.round(node.getRadius() * (scaleX + scaleY) / 2.0);
+            node.setRadius(newRadius);
+        }
+
+        lastWidth = newWidth;
+        lastHeight = newHeight;
     }
 
     /**
