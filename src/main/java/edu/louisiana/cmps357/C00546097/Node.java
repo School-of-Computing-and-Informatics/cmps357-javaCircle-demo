@@ -63,5 +63,5 @@ public class Node {
      * 
      * @param position the new center point for the node
      */
-    public void setPosition(Point position) { this.position = position; }
+    public void setPosition(Point position) { this.position = new Point(position); }
 }

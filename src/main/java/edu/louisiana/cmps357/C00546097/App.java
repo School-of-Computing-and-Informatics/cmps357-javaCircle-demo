@@ -23,10 +23,12 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Node Circle 800x800");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setContentPane(new CirclePanel());
+            CirclePanel circlePanel = new CirclePanel();
+            frame.setContentPane(circlePanel);
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
+            circlePanel.requestFocusInWindow();
         });
     }
 }

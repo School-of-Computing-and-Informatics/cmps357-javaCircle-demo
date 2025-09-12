@@ -1,6 +1,6 @@
 package edu.louisiana.cmps357.C00546097;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -41,8 +41,12 @@ public class CirclePanel extends JPanel {
         
         nodes = new ArrayList<>();
         createNodes();
-        setupMouseListeners();
 
+        setFocusable(true);
+        requestFocusInWindow();
+
+        setupMouseListeners();
+        setupKeyBindings();
 
         lastWidth = SIZE;
         lastHeight = SIZE;
@@ -56,6 +60,15 @@ public class CirclePanel extends JPanel {
             }
         });
     }
+
+    // --- Helper method to move the selected node ---
+    private void moveSelectedNode(int dx, int dy) {
+        if (selectedNode != null) {
+            Point p = selectedNode.getPosition();
+            selectedNode.setPosition(new Point(p.x + dx, p.y + dy));
+            repaint();
+        }
+    }
     
     /**
      * Sets up mouse event listeners for interactive circle dragging.
@@ -65,18 +78,31 @@ public class CirclePanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                requestFocusInWindow();
                 Point mousePoint = e.getPoint();
-                selectedNode = findNodeAt(mousePoint);
-                if (selectedNode != null) {
+
+                Node clickedNode = findNodeAt(mousePoint);
+                if (clickedNode != null) {
+                    selectedNode = clickedNode;
                     lastMousePoint = mousePoint;
+
                     setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+                } else {
+                    // Clicked on empty space, deselect
+                    selectedNode = null;
+                    setCursor(java.awt.Cursor.getDefaultCursor());
                 }
             }
             
             @Override
             public void mouseReleased(MouseEvent e) {
-                selectedNode = null;
-                setCursor(java.awt.Cursor.getDefaultCursor());
+                lastMousePoint = null;
+
+                if (selectedNode != null) {
+                    setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+                } else {
+                    setCursor(java.awt.Cursor.getDefaultCursor());
+                }
             }
         });
         
@@ -87,17 +113,58 @@ public class CirclePanel extends JPanel {
                     Point currentPoint = e.getPoint();
                     int deltaX = currentPoint.x - lastMousePoint.x;
                     int deltaY = currentPoint.y - lastMousePoint.y;
-                    
-                    Point currentPos = selectedNode.getPosition();
-                    Point newPos = new Point(currentPos.x + deltaX, currentPos.y + deltaY);
-                    selectedNode.setPosition(newPos);
+
+                    moveSelectedNode(deltaX, deltaY);
                     
                     lastMousePoint = currentPoint;
-                    repaint();
                 }
             }
         });
     }
+
+    // --- Key bindings ---
+    private void setupKeyBindings() {
+        setFocusable(true);
+        requestFocusInWindow();
+
+        String[] directions = {"UP", "DOWN", "LEFT", "RIGHT"};
+
+        for (String dir : directions) {
+            // normal arrow
+            getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(dir), dir);
+            getActionMap().put(dir, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int dx = 0, dy = 0;
+                    switch (dir) {
+                        case "UP" -> dy = -1;
+                        case "DOWN" -> dy = 1;
+                        case "LEFT" -> dx = -1;
+                        case "RIGHT" -> dx = 1;
+                    }
+                    moveSelectedNode(dx, dy);
+                }
+            });
+
+            // Shift + arrow
+            getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("shift " + dir), "shift_" + dir);
+            getActionMap().put("shift_" + dir, new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int dx = 0, dy = 0;
+                    int amount = 10; // shift moves by 10 pixels
+                    switch (dir) {
+                        case "UP" -> dy = -amount;
+                        case "DOWN" -> dy = amount;
+                        case "LEFT" -> dx = -amount;
+                        case "RIGHT" -> dx = amount;
+                    }
+                    moveSelectedNode(dx, dy);
+                }
+            });
+        }
+    }
+
     
     /**
      * Finds the node at the specified mouse point using collision detection.
