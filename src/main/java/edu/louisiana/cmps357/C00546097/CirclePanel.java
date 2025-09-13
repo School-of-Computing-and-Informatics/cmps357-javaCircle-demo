@@ -31,6 +31,8 @@ public class CirclePanel extends JPanel {
     private int lastWidth;
     private int lastHeight;
 
+    private Timer resizeTimer;
+
     /**
      * Constructs a new CirclePanel with the specified size and initializes
      * the nodes in a circular arrangement with mouse interaction capabilities.
@@ -47,18 +49,11 @@ public class CirclePanel extends JPanel {
 
         setupMouseListeners();
         setupKeyBindings();
+        setupResizeListener();
 
         lastWidth = SIZE;
         lastHeight = SIZE;
 
-        // resize handler
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                scaleNodes();
-                repaint();
-            }
-        });
     }
 
     // --- Helper method to move the selected node ---
@@ -214,15 +209,31 @@ public class CirclePanel extends JPanel {
         }
     }
 
+    // --- Deferred resize listener ---
+    private void setupResizeListener() {
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                if (resizeTimer != null && resizeTimer.isRunning()) {
+                    resizeTimer.restart();
+                } else {
+                    resizeTimer = new Timer(200, evt -> {
+                        resizeTimer.stop();
+                        scaleNodes(getWidth(), getHeight());
+                    });
+                    resizeTimer.setRepeats(false);
+                    resizeTimer.start();
+                }
+            }
+        });
+    }
+
     /**
      * Scale nodes continuously as the panel resizes.
      */
-    private void scaleNodes() {
-        int newWidth = getWidth();
-        int newHeight = getHeight();
-
-        double scaleX = (double) newWidth / lastWidth;
-        double scaleY = (double) newHeight / lastHeight;
+    private void scaleNodes(int targetWidth, int targetHeight) {
+        double scaleX = (double) targetWidth / lastWidth;
+        double scaleY = (double) targetHeight / lastHeight;
 
         for (Node node : nodes) {
             Point pos = node.getPosition();
@@ -235,8 +246,9 @@ public class CirclePanel extends JPanel {
             node.setRadius(newRadius);
         }
 
-        lastWidth = newWidth;
-        lastHeight = newHeight;
+        lastWidth = targetWidth;
+        lastHeight = targetHeight;
+        repaint();
     }
 
     /**
