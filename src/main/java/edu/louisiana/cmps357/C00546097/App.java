@@ -3,6 +3,23 @@ package edu.louisiana.cmps357.C00546097;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+// Liana Webre
+// CMPS 357
+// Assignment #1
+// 9/12/25
+// I certify that the solutions in this assignment are my own work. I have not
+// shared them with any person or publicly available website before the deadline
+// or within the 24-hour extension period. Any use of AI tools in the preparation
+// of this assignment has been explicitly acknowledged below. I have provided a
+// complete list of all tools used, along with minimal documentation describing how each
+// was applied to this work.
+
+// ------ AI Tools Used ----------
+// Tool: Chat GPT
+// Usage: Implemented a resizable GUI panel featuring a circular layout of draggable nodes with randomized sizes and colors.
+// Verification: Verified visually and through interactive testing that nodes maintain proportional
+// positions and sizes during window resizing, and that drag operations correctly update unscaled coordinates.
+
 /**
  * Main application class that creates and displays a graphical window
  * containing interactive circles arranged in a circular pattern.
