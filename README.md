@@ -87,6 +87,22 @@ This project demonstrates several Java programming concepts:
 ## Screenshot
 ![img_1.png](img_1.png)
 
+## Reflection
+**What worked correctly with AI-generated content on the first attempt:**
+- The initial concept for scaling node positions proportionally during window resizing.
+- The idea of storing both a default angle and unscaled positions for nodes so they can maintain a circular layout.
+
+**What did not work and had to be implemented entirely by hand:**
+- Nothing had to be implemented entirely by hand.
+
+**What required multiple iterations with AI and how the process could be streamlined in the
+future (a learning experience):**
+- Integrating proportional scaling of the “big circle” and individual node radii while keeping everything centered and visually consistent required fine-tuning.
+- The keyboard interaction for moving nodes was not fully specified initially, requiring repeated prompts and incremental updates to achieve complete functionality.
+
+Streamlining tip: In the future, providing a fully detailed class diagram or a list of desired behaviors before asking AI to generate code could reduce iterations.
+
+
 ## Author
 
 Liana Webre
