@@ -40,10 +40,10 @@ The application creates 36 nodes arranged in a circular pattern around the cente
 ### Option 1: Direct Java Compilation
 ```bash
 # Compile the Java files
-javac -d target/classes src/main/java/com/example/*.java
+javac -d target/classes src/main/java/edu/louisiana/cmps357/C00546097/*.java
 
 # Run the application
-java -cp target/classes com.example.App
+java -cp target/classes edu.louisiana.cmps357.C00546097.App
 ```
 
 ### Option 2: IDE
