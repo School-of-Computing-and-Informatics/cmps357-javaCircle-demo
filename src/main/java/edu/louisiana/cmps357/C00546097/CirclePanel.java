@@ -8,8 +8,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Point;
 import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A custom JPanel that displays and manages interactive circles (nodes).
@@ -32,6 +38,7 @@ public class CirclePanel extends JPanel {
     private int lastHeight;
 
     private Timer resizeTimer;
+
 
     /**
      * Constructs a new CirclePanel with the specified size and initializes
@@ -56,7 +63,14 @@ public class CirclePanel extends JPanel {
 
     }
 
-    // --- Helper method to move the selected node ---
+
+    /**
+     * Helper method which moves the currently selected node
+     * by the specified amounts in x and y directions.
+     *
+     * @param dx the change in the x-coordinate
+     * @param dy the change in the y-coordinate
+     */
     private void moveSelectedNode(int dx, int dy) {
         if (selectedNode != null) {
             Point p = selectedNode.getPosition();
@@ -64,7 +78,8 @@ public class CirclePanel extends JPanel {
             repaint();
         }
     }
-    
+
+
     /**
      * Sets up mouse event listeners for interactive circle dragging.
      * Handles mouse press, release, and drag events to enable user interaction.
@@ -117,7 +132,14 @@ public class CirclePanel extends JPanel {
         });
     }
 
-    // --- Key bindings ---
+
+    /**
+     * Sets up key bindings for moving the selected node with arrow keys.
+     * <p>
+     * Normal arrow keys move the node by 1 pixel, while Shift + arrow
+     * moves it by 10 pixels. Key bindings work when the panel is focused.
+     * </p>
+     */
     private void setupKeyBindings() {
         setFocusable(true);
         requestFocusInWindow();
@@ -163,7 +185,7 @@ public class CirclePanel extends JPanel {
     
     /**
      * Finds the node at the specified mouse point using collision detection.
-     * Returns the first node whose circular area contains the given point.
+     * Returns the topmost node containing the specified point, or {@code null} if none.
      * 
      * @param point the mouse point to check for node collision
      * @return the node at the specified point, or null if no node is found
@@ -183,7 +205,8 @@ public class CirclePanel extends JPanel {
         }
         return null;
     }
-    
+
+
     /**
      * Creates and initializes the nodes in a circular arrangement.
      * Generates 36 nodes with random colors and radii, positioned evenly
@@ -209,7 +232,11 @@ public class CirclePanel extends JPanel {
         }
     }
 
-    // --- Deferred resize listener ---
+
+    /**
+     * Adds a resize listener that waits 200 ms after a resize
+     * before calling {@link #scaleNodes(int, int)} to scale nodes.
+     */
     private void setupResizeListener() {
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -228,8 +255,20 @@ public class CirclePanel extends JPanel {
         });
     }
 
+
     /**
-     * Scale nodes continuously as the panel resizes.
+     * Scales and repositions all nodes in the panel when the panel size changes.
+     * <p>
+     * This method recalculates each node's position and radius based on the
+     * ratio between the new target dimensions and the previous dimensions,
+     * ensuring that nodes maintain their relative layout and size as the
+     * panel is resized.
+     * </p>
+     *
+     * @param targetWidth  the new width of the panel after resizing
+     * @param targetHeight the new height of the panel after resizing
+     *
+     * @see Node
      */
     private void scaleNodes(int targetWidth, int targetHeight) {
         double scaleX = (double) targetWidth / lastWidth;
@@ -250,6 +289,7 @@ public class CirclePanel extends JPanel {
         lastHeight = targetHeight;
         repaint();
     }
+
 
     /**
      * Paints the component by rendering all nodes as filled circles.
@@ -286,5 +326,89 @@ public class CirclePanel extends JPanel {
         } finally {
             g2.dispose();
         }
+    }
+
+
+    /**
+     * Exports the current circle layout to a JSON file.
+     * <p>
+     * Each node is written as a JSON object containing its
+     * x/y position, radius, and RGB color components.  The
+     * resulting file is a JSON array of these node objects.
+     * </p>
+     *
+     * @param filename the path and file name to write to,
+     *                 for example "layout.json"
+     */
+    public void exportLayout(String filename) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[\n");
+
+        for (int i = 0; i < nodes.size(); i++) {
+            Node n = nodes.get(i);
+            Point p = n.getPosition();
+            Color c = n.getColor();
+
+            sb.append(String.format(
+                    "  {\"x\":%d,\"y\":%d,\"radius\":%d,\"r\":%d,\"g\":%d,\"b\":%d}",
+                    p.x, p.y, n.getRadius(),
+                    c.getRed(), c.getGreen(), c.getBlue()
+            ));
+            if (i < nodes.size() - 1) sb.append(",");
+            sb.append("\n");
+        }
+        sb.append("]");
+
+        try (FileWriter fw = new FileWriter(filename)) {
+            fw.write(sb.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final Pattern NODE_PATTERN = Pattern.compile(
+            "\\{\"x\":(\\d+),\"y\":(\\d+),\"radius\":(\\d+),\"r\":(\\d+),\"g\":(\\d+),\"b\":(\\d+)\\}"
+    );
+
+
+    /**
+     * Imports a circle layout from a JSON file and updates the panel.
+     * <p>
+     * Reads the JSON array produced by {@link #exportLayout(String)},
+     * parses each node's x/y position, radius, and RGB color, and
+     * replaces the current {@code nodes} list with the loaded layout.
+     * After loading, the panel is repainted and any previous selection
+     * is cleared.
+     * </p>
+     *
+     * @param filename the path and file name to read from,
+     *                 for example "layout.json"
+     */
+    public void importLayout(String filename) {
+        String json;
+        try {
+            json = new String(Files.readAllBytes(Paths.get(filename)));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        nodes.clear();
+        Matcher m = NODE_PATTERN.matcher(json);
+        while (m.find()) {
+            int x = Integer.parseInt(m.group(1));
+            int y = Integer.parseInt(m.group(2));
+            int radius = Integer.parseInt(m.group(3));
+            int r = Integer.parseInt(m.group(4));
+            int g = Integer.parseInt(m.group(5));
+            int b = Integer.parseInt(m.group(6));
+
+            nodes.add(new Node(new Point(x, y), new Color(r, g, b), radius));
+        }
+
+        selectedNode = null;
+        lastWidth  = getWidth();
+        lastHeight = getHeight();
+        repaint();
     }
 }

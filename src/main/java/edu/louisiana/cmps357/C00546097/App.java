@@ -29,6 +29,9 @@ public class App {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
             circlePanel.requestFocusInWindow();
+
+            circlePanel.exportLayout("layout.json");
+            circlePanel.importLayout("layout.json");
         });
     }
 }
